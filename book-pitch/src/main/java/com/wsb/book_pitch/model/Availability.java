@@ -13,6 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Availability {
+    zmienic na sloty zamiast start end
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -32,13 +32,12 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for simplicity, not recommended for production
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/bookings/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
-                )
-                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll
-                )
-                .logout(LogoutConfigurer::permitAll
-                );
+                        //.requestMatchers("/api/bookings/**").hasRole("ADMIN")
+                        .requestMatchers("/api/user/**").permitAll()
+                        .anyRequest().authenticated())
+                //.formLogin(AbstractAuthenticationFilterConfigurer::permitAll)
+                .logout(LogoutConfigurer::permitAll)
+                .httpBasic(AbstractHttpConfigurer::disable);
         return http.build();
     }
 

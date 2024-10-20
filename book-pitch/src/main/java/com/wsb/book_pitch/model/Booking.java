@@ -22,7 +22,8 @@ public class Booking {
     private Pitch pitch;
 
     private String userEmail;
-    private LocalDateTime bookingTime;
+    private LocalDateTime startTime; // Start time of the booking
+    private LocalDateTime endTime; // End time of the bookin
     private boolean isActive;
 
     public void setIsActive(boolean b) {
