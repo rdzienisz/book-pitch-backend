@@ -1,13 +1,15 @@
 package com.wsb.book_pitch.controller;
 
+import com.wsb.book_pitch.BookingRequest;
 import com.wsb.book_pitch.model.Booking;
 import com.wsb.book_pitch.model.Pitch;
 import com.wsb.book_pitch.service.BookingService;
+import com.wsb.book_pitch.util.TimeSlot;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,9 @@ import java.util.List;
 @RequestMapping("/api/user")
 public class UserController {
 
+    private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
+
+
     @Autowired
     private BookingService bookingService;
 
@@ -25,12 +30,16 @@ public class UserController {
         return bookingService.getAvailablePitches();
     }
 
-    @PostMapping("/booking")
-    public Booking createBooking(@RequestParam Long objectId,
-            @RequestParam String email,
-            @RequestParam LocalDateTime startTime,
-            @RequestParam int durationHours) {
-     return bookingService.createBooking(objectId, email, startTime, durationHours);
+    @PostMapping("/bookings/{pitchId}")
+    public Booking createBooking(@PathVariable Long pitchId,
+            @RequestBody BookingRequest bookingRequest) {
+
+        String email = bookingRequest.getEmail();
+        LocalDateTime startTime = bookingRequest.getStartTime();
+        int durationHours = bookingRequest.getDurationHours();
+        // Process the booking
+
+     return bookingService.createBooking(pitchId, email, startTime, durationHours);
 }
 
     @DeleteMapping("/booking/{id}")
@@ -44,10 +53,10 @@ public class UserController {
     }
 
     @GetMapping("/availability/{pitchId}")
-    public ResponseEntity<List<LocalTime>> checkAvailability(
+    public ResponseEntity<List<TimeSlot>> checkAvailability(
             @PathVariable Long pitchId,
             @RequestParam String date) {
-        List<LocalTime> availableSlots = bookingService.checkAvailability(pitchId, LocalDate.parse(date));
+        List<TimeSlot> availableSlots = bookingService.checkAvailability(pitchId, LocalDate.parse(date));
         return ResponseEntity.ok(availableSlots);
     }
 }

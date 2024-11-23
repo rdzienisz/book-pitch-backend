@@ -1,17 +1,19 @@
 package com.wsb.book_pitch.service;
 
-import com.wsb.book_pitch.model.*;
-import com.wsb.book_pitch.repository.*;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.stream.Collectors;
+import com.wsb.book_pitch.exception.BookingConflictException;
+import com.wsb.book_pitch.model.Booking;
+import com.wsb.book_pitch.model.Pitch;
+import com.wsb.book_pitch.repository.BookingRepository;
+import com.wsb.book_pitch.repository.PitchRepository;
+import com.wsb.book_pitch.util.TimeSlot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
-
 @Service
 public class BookingService {
 
@@ -19,10 +21,10 @@ public class BookingService {
     private PitchRepository pitchRepository;
 
     @Autowired
-    private AvailabilityRepository availabilityRepository;
-
-    @Autowired
     private BookingRepository bookingRepository;
+
+    private static final LocalTime OPENING_TIME = LocalTime.of(8, 0);
+    private static final LocalTime CLOSING_TIME = LocalTime.of(22, 0);
 
     public List<Pitch> getAvailablePitches() {
         return pitchRepository.findAll();
@@ -30,45 +32,48 @@ public class BookingService {
 
     public Booking createBooking(Long pitchId, String email, LocalDateTime startTime, int durationHours) {
         Pitch pitch = pitchRepository.findById(pitchId).orElseThrow();
-        // Calculate the end time based on the booking duration
         LocalDateTime endTime = startTime.plusHours(durationHours);
-        // Check if the pitch is available for the requested time slot
-        boolean isAvailable = availabilityRepository.isAvailable(pitchId, startTime, endTime);
-        if (!isAvailable) {
-            throw new IllegalStateException("Pitch is not available for the selected time slot.");
+
+        if (!isWithinOperatingHours(startTime.toLocalTime(), endTime.toLocalTime())) {
+            throw new IllegalArgumentException("Booking times must be between 8 AM and 10 PM.");
         }
+
+        if (!isPitchAvailable(pitchId, startTime, endTime)) {
+            throw new BookingConflictException("The selected time slot is already booked. Please choose a different time.");
+        }
+
         Booking booking = new Booking();
         booking.setPitch(pitch);
         booking.setUserEmail(email);
-        booking.setStartTime(startTime); // Set the start time
-        booking.setEndTime(endTime); // Set the end time
+        booking.setStartTime(startTime);
+        booking.setEndTime(endTime);
         booking.setIsActive(true);
         return bookingRepository.save(booking);
     }
 
-    public List<LocalTime> checkAvailability(Long pitchId, LocalDate date) {
-        String dateString = date.toString();  // Convert LocalDate to String for query
-        // Retrieve all availabilities for the pitch on the specified date
-        List<Availability> availabilities = availabilityRepository.findByPitchIdAndDate(pitchId, dateString);
-        // Retrieve all bookings for the pitch on the specified date
-        List<Booking> bookings = bookingRepository.findByPitchIdAndDate(pitchId, dateString);
-        // Prepare a list of all available slots initially
-        List<LocalTime> availableSlots = new ArrayList<>();
-        for (Availability availability : availabilities) {
-            LocalTime startTime = availability.getStartTime().toLocalTime();
-            LocalTime endTime = availability.getEndTime().toLocalTime();
-            while (startTime.isBefore(endTime)) {
-                availableSlots.add(startTime);
-                startTime = startTime.plusHours(1); // Assuming 1-hour slots
+    private boolean isWithinOperatingHours(LocalTime startTime, LocalTime endTime) {
+        return !startTime.isBefore(OPENING_TIME) && !endTime.isAfter(CLOSING_TIME);
+    }
+
+    private boolean isPitchAvailable(Long pitchId, LocalDateTime startTime, LocalDateTime endTime) {
+        List<Booking> bookings = bookingRepository.findByPitchId(pitchId);
+        for (Booking booking : bookings) {
+            if (booking.isActive() && booking.getEndTime().isAfter(startTime) && booking.getStartTime().isBefore(endTime)) {
+                return false;
             }
         }
-        // Remove slots that overlap with bookings
-        for (Booking booking : bookings) {
-            LocalTime bookingStart = booking.getStartTime().toLocalTime();
-            LocalTime bookingEnd = booking.getEndTime().toLocalTime();
-            availableSlots = availableSlots.stream()
-                    .filter(slot -> slot.isBefore(bookingStart) || slot.isAfter(bookingEnd.minusHours(1)))
-                    .collect(Collectors.toList());
+        return true;
+    }
+
+    public List<TimeSlot> checkAvailability(Long pitchId, LocalDate date) {
+        List<TimeSlot> availableSlots = new ArrayList<>();
+
+        for (LocalTime time = OPENING_TIME; time.isBefore(CLOSING_TIME); time = time.plusHours(1)) {
+            LocalDateTime slotStart = LocalDateTime.of(date, time);
+            LocalDateTime slotEnd = slotStart.plusHours(1);
+            if (isPitchAvailable(pitchId, slotStart, slotEnd)) {
+                availableSlots.add(new TimeSlot(time, time.plusHours(1)));
+            }
         }
         return availableSlots;
     }
@@ -77,14 +82,6 @@ public class BookingService {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow();
         booking.setIsActive(false);
         bookingRepository.save(booking);
-    }
-
-    public Availability createAvailability(Availability availability) {
-        return availabilityRepository.save(availability);
-    }
-
-    public void deleteAvailability(Long availabilityId) {
-        availabilityRepository.deleteById(availabilityId);
     }
 
     public List<Booking> getBookingsByPitch(Long pitchId) {

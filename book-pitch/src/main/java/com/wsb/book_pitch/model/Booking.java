@@ -23,10 +23,10 @@ public class Booking {
 
     private String userEmail;
     private LocalDateTime startTime; // Start time of the booking
-    private LocalDateTime endTime; // End time of the bookin
+    private LocalDateTime endTime; // End time of the booking
     private boolean isActive;
 
-    public void setIsActive(boolean b) {
-        isActive = b;
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }
