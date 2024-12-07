@@ -1,22 +1,17 @@
 package com.wsb.book_pitch.util;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalTime;
 
 public class TimeSlot {
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime start;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
     private LocalTime end;
 
     public TimeSlot(LocalTime start, LocalTime end) {
         this.start = start;
         this.end = end;
-    }
-
-    public LocalTime getStart() {
-        return start;
-    }
-
-    public LocalTime getEnd() {
-        return end;
     }
 
     @Override

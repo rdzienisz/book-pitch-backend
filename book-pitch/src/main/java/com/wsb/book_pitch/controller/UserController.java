@@ -5,10 +5,9 @@ import com.wsb.book_pitch.model.Booking;
 import com.wsb.book_pitch.model.Pitch;
 import com.wsb.book_pitch.service.BookingService;
 import com.wsb.book_pitch.util.TimeSlot;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-
-    private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
-
 
     @Autowired
     private BookingService bookingService;
@@ -32,19 +28,13 @@ public class UserController {
 
     @PostMapping("/bookings/{pitchId}")
     public Booking createBooking(@PathVariable Long pitchId,
-            @RequestBody BookingRequest bookingRequest) {
+            @RequestBody BookingRequest bookingRequest) throws IOException {
 
         String email = bookingRequest.getEmail();
         LocalDateTime startTime = bookingRequest.getStartTime();
         int durationHours = bookingRequest.getDurationHours();
-        // Process the booking
 
      return bookingService.createBooking(pitchId, email, startTime, durationHours);
-}
-
-    @DeleteMapping("/booking/{id}")
-    public void cancelBooking(@PathVariable Long id) {
-        bookingService.cancelBooking(id);
     }
 
     @GetMapping("/bookings/{pitchId}")

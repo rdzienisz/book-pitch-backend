@@ -6,6 +6,7 @@ import com.wsb.book_pitch.model.Pitch;
 import com.wsb.book_pitch.repository.BookingRepository;
 import com.wsb.book_pitch.repository.PitchRepository;
 import com.wsb.book_pitch.util.TimeSlot;
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +26,15 @@ public class BookingService {
 
     private static final LocalTime OPENING_TIME = LocalTime.of(8, 0);
     private static final LocalTime CLOSING_TIME = LocalTime.of(22, 0);
+    @Autowired
+    private EmailService emailService;
 
     public List<Pitch> getAvailablePitches() {
         return pitchRepository.findAll();
     }
 
-    public Booking createBooking(Long pitchId, String email, LocalDateTime startTime, int durationHours) {
+    public Booking createBooking(Long pitchId, String email, LocalDateTime startTime, int durationHours)
+            throws IOException {
         Pitch pitch = pitchRepository.findById(pitchId).orElseThrow();
         LocalDateTime endTime = startTime.plusHours(durationHours);
 
@@ -48,6 +52,7 @@ public class BookingService {
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
         booking.setIsActive(true);
+        emailService.sendEmail(email, "asd", "asdasdas");
         return bookingRepository.save(booking);
     }
 
@@ -81,10 +86,14 @@ public class BookingService {
     public void cancelBooking(Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow();
         booking.setIsActive(false);
-        bookingRepository.save(booking);
+        bookingRepository.delete(booking);
     }
 
     public List<Booking> getBookingsByPitch(Long pitchId) {
         return bookingRepository.findByPitchId(pitchId);
+    }
+
+    public List<Booking> getAllBookings() {
+        return bookingRepository.findAll();
     }
 }
