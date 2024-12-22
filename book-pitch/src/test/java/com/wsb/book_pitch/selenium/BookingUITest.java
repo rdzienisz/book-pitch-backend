@@ -84,9 +84,6 @@ public class BookingUITest {
         logger.info("CLICKED create after");
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
-        logger.info("before long");
-        longWait.until(ExpectedConditions.alertIsPresent());
-        logger.info("after long");
         File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
         String alertText = driver.switchTo().alert().getText();
