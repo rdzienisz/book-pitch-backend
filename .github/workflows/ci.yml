@@ -34,6 +34,13 @@ jobs:
       - name: Build backend with Maven
         run: cd book-pitch && mvn clean install
 
+      - name: Start backend server
+        run: |
+          cd book-pitch
+          mvn spring-boot:run &
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
       - name: Clone frontend repository
         run: git clone https://github.com/rdzienisz/book-pitch-frontend frontend
 
