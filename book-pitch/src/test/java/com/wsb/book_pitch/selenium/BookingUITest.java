@@ -49,10 +49,10 @@ public class BookingUITest {
         WebElement pitchSelect = wait.until(ExpectedConditions.elementToBeClickable(By.id("pitch-select")));
         WebElement createBookingButton = driver.findElement(By.id("create-booking-button"));
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot, new File("pitchSelectError.png"));
+        FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
         pitchSelect.click();
         File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot1, new File("pitchSelectError1.png"));
+        FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
         List<WebElement> options = driver.findElements(By.tagName("li"));
         for (WebElement option : options) {
             if (option.getText().equals("Pitch 1")) {
