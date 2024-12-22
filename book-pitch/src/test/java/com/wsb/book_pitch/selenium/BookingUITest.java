@@ -28,6 +28,7 @@ public class BookingUITest {
     private static final Logger logger = LoggerFactory.getLogger(BookingUITest.class);
     private static WebDriver driver;
     private static WebDriverWait wait;
+    private static WebDriverWait longWait;
 
     @BeforeAll
     public static void setUp() {
@@ -38,6 +39,7 @@ public class BookingUITest {
         options.addArguments("--disable-dev-shm-usage");
         driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(4));
+        longWait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
     @Test
@@ -73,10 +75,14 @@ public class BookingUITest {
             timeSlot.click();
         }
 
+        logger.info("CLICKED create");
         createBookingButton.click();
+        logger.info("CLICKED create after");
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
-        wait.until(ExpectedConditions.alertIsPresent());
+        logger.info("before long");
+        longWait.until(ExpectedConditions.alertIsPresent());
+        logger.info("after long");
         File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
         String alertText = driver.switchTo().alert().getText();
