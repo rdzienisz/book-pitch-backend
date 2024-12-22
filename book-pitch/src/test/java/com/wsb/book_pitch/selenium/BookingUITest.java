@@ -1,12 +1,17 @@
 package com.wsb.book_pitch.selenium;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -33,7 +38,7 @@ public class BookingUITest {
     }
 
     @Test
-    void testCreateBooking() {
+    void testCreateBooking() throws IOException {
         driver.get("http://localhost:3000");
 
         WebElement bookNavLink = driver.findElement(By.id("book-button"));
@@ -41,11 +46,14 @@ public class BookingUITest {
 
         WebElement emailInput = driver.findElement(By.id("email-input"));
         WebElement dateInput = driver.findElement(By.id("date-input"));
-        WebElement pitchSelect = driver.findElement(By.id("pitch-select"));
+        WebElement pitchSelect = wait.until(ExpectedConditions.elementToBeClickable(By.id("pitch-select")));
         WebElement createBookingButton = driver.findElement(By.id("create-booking-button"));
-
+        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(screenshot, new File("pitchSelectError.png"));
         pitchSelect.click();
-        List<WebElement> options = driver.findElements(By.tagName("li")); // Assuming options are <li> elements
+        File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(screenshot1, new File("pitchSelectError1.png"));
+        List<WebElement> options = driver.findElements(By.tagName("li"));
         for (WebElement option : options) {
             if (option.getText().equals("Pitch 1")) {
                 option.click();

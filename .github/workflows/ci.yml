@@ -62,6 +62,12 @@ jobs:
       - name: Run UI tests
         run: cd book-pitch && mvn test -Dtest=BookingUITest
 
+      - name: Upload screenshot
+        uses: actions/upload-artifact@v3
+        with:
+          name: screenshots
+          path: screenshots/
+
       - name: Stop frontend application
         run: |
           kill $(jobs -p)
