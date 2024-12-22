@@ -1,9 +1,7 @@
 package com.wsb.book_pitch.selenium;
 
-import com.wsb.book_pitch.JwtAuthenticationFilter;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
@@ -86,9 +84,8 @@ public class BookingUITest {
         FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
         File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
-        String alertText = driver.switchTo().alert().getText();
-        assertTrue(alertText.contains("Booking successful!"));
-        driver.switchTo().alert().accept();
+        WebElement successMessage = longWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-message")));
+        assertTrue(successMessage.getText().contains("Booking successful!"));
     }
 
     @AfterAll
