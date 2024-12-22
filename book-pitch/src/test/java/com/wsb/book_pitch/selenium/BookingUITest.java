@@ -1,5 +1,6 @@
 package com.wsb.book_pitch.selenium;
 
+import com.wsb.book_pitch.JwtAuthenticationFilter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -18,11 +19,13 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BookingUITest {
-
+    private static final Logger logger = LoggerFactory.getLogger(BookingUITest.class);
     private static WebDriver driver;
     private static WebDriverWait wait;
 
@@ -62,6 +65,12 @@ public class BookingUITest {
         List<WebElement> availableSlots = driver.findElements(By.xpath("//tr[contains(@style, 'lightgreen')]"));
         if (!availableSlots.isEmpty()) {
             availableSlots.get(0).click();
+            logger.info("CLICKED");
+        }
+        else {
+            logger.info("NOT CLICKED");
+            WebElement timeSlot = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//td[text()='20:00']")));
+            timeSlot.click();
         }
 
         createBookingButton.click();
@@ -69,7 +78,7 @@ public class BookingUITest {
         FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
         wait.until(ExpectedConditions.alertIsPresent());
         File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError.png"));
+        FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
         String alertText = driver.switchTo().alert().getText();
         assertTrue(alertText.contains("Booking successful!"));
         driver.switchTo().alert().accept();
