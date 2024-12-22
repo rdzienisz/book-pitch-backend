@@ -1,6 +1,8 @@
 package com.wsb.book_pitch.service;
 
 import com.wsb.book_pitch.exception.BookingConflictException;
+import com.wsb.book_pitch.exception.BookingNotFoundException;
+import com.wsb.book_pitch.exception.PitchNotFoundException;
 import com.wsb.book_pitch.model.Booking;
 import com.wsb.book_pitch.model.Pitch;
 import com.wsb.book_pitch.repository.BookingRepository;
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+
 @Service
 public class BookingService {
 
@@ -26,6 +29,7 @@ public class BookingService {
 
     private static final LocalTime OPENING_TIME = LocalTime.of(8, 0);
     private static final LocalTime CLOSING_TIME = LocalTime.of(22, 0);
+
     @Autowired
     private EmailService emailService;
 
@@ -35,12 +39,11 @@ public class BookingService {
 
     public Booking createBooking(Long pitchId, String email, LocalDateTime startTime, int durationHours)
             throws IOException {
-        Pitch pitch = pitchRepository.findById(pitchId).orElseThrow();
+        Pitch pitch = pitchRepository.findById(pitchId).orElseThrow(() ->
+                new PitchNotFoundException("Pitch not found for id: " + pitchId));
         LocalDateTime endTime = startTime.plusHours(durationHours);
 
-        if (!isWithinOperatingHours(startTime.toLocalTime(), endTime.toLocalTime())) {
-            throw new IllegalArgumentException("Booking times must be between 8 AM and 10 PM.");
-        }
+        validateBookingTimes(startTime.toLocalTime(), endTime.toLocalTime());
 
         if (!isPitchAvailable(pitchId, startTime, endTime)) {
             throw new BookingConflictException("The selected time slot is already booked. Please choose a different time.");
@@ -52,8 +55,14 @@ public class BookingService {
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
         booking.setIsActive(true);
-        emailService.sendEmail(email, "asd", "asdasdas");
+        emailService.sendEmail(email, "Booking Confirmation", "Your booking is confirmed.");
         return bookingRepository.save(booking);
+    }
+
+    private void validateBookingTimes(LocalTime startTime, LocalTime endTime) {
+        if (!isWithinOperatingHours(startTime, endTime)) {
+            throw new IllegalArgumentException("Booking times must be between 8 AM and 10 PM.");
+        }
     }
 
     private boolean isWithinOperatingHours(LocalTime startTime, LocalTime endTime) {
@@ -84,7 +93,8 @@ public class BookingService {
     }
 
     public void cancelBooking(Long bookingId) {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow();
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
+                new BookingNotFoundException("Booking not found for id: " + bookingId));
         booking.setIsActive(false);
         bookingRepository.delete(booking);
     }

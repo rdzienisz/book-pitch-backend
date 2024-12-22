@@ -10,17 +10,12 @@ public class BookingRequest {
     @Setter
     private int durationHours;
 
-    // Getters and Setters
     public String getEmail() {
         return email;
     }
 
     public LocalDateTime getStartTime() {
         return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = LocalDateTime.parse(startTime);
     }
 
     public int getDurationHours() {
