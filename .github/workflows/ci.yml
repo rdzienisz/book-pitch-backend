@@ -32,7 +32,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Build with Maven
-        run: mvn clean install
+        run: cd book-pitch && mvn clean install
 
       - name: Run tests
-        run: mvn test
+        run: cd book-pitch && mvn test
