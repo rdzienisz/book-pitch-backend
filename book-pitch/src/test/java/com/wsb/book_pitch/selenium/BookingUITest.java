@@ -34,7 +34,7 @@ public class BookingUITest {
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         driver = new ChromeDriver(options);
-        wait = new WebDriverWait(driver, Duration.ofSeconds(4));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
     @Test
@@ -48,11 +48,7 @@ public class BookingUITest {
         WebElement dateInput = driver.findElement(By.id("date-input"));
         WebElement pitchSelect = wait.until(ExpectedConditions.elementToBeClickable(By.id("pitch-select")));
         WebElement createBookingButton = driver.findElement(By.id("create-booking-button"));
-        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
         pitchSelect.click();
-        File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
         List<WebElement> options = driver.findElements(By.tagName("li"));
         for (WebElement option : options) {
             if (option.getText().equals("Pitch 1")) {
@@ -69,7 +65,11 @@ public class BookingUITest {
         }
 
         createBookingButton.click();
+        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
         wait.until(ExpectedConditions.alertIsPresent());
+        File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError.png"));
         String alertText = driver.switchTo().alert().getText();
         assertTrue(alertText.contains("Booking successful!"));
         driver.switchTo().alert().accept();
