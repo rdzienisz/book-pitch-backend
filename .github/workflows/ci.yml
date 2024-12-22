@@ -54,6 +54,11 @@ jobs:
         env:
           CI: true
 
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 'latest'
+
       - name: Run UI tests
         run: cd book-pitch && mvn test -Dtest=BookingUITest
 
