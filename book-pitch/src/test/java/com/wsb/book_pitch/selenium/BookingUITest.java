@@ -41,7 +41,7 @@ public class BookingUITest {
     }
 
     @Test
-    void testCreateBooking() throws IOException, InterruptedException {
+    void testCreateBooking() throws IOException {
         driver.get("http://localhost:3000");
 
         WebElement bookNavLink = driver.findElement(By.id("book-button"));
@@ -76,21 +76,16 @@ public class BookingUITest {
             WebElement timeSlot = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//td[text()='20:00']")));
             timeSlot.click();
         }
-
-        logger.info("CLICKED create");
         createBookingButton.click();
-        logger.info("CLICKED create after");
         File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
         File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
-        Thread.sleep(4000);
-        WebElement createBookingButtonChanged = driver.findElement(By.id("create-booking-button"));
-        String buttonColor = createBookingButtonChanged.getCssValue("background-color");
-        System.out.println("Button color: " + buttonColor);
-        assertTrue(buttonColor.equals("rgba(0, 128, 0, 1)") || buttonColor.equals("rgb(0, 128, 0)"), "Button color did not change to green.");
-
-    }
+        longWait.until(ExpectedConditions.alertIsPresent());
+        String alertText = driver.switchTo().alert().getText();
+        assertTrue(alertText.contains("Booking successful!"));
+        driver.switchTo().alert().accept();
+      }
 
     @AfterAll
     public static void tearDown() {

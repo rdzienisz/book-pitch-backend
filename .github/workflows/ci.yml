@@ -78,7 +78,3 @@ jobs:
         with:
           name: screenshots
           path: book-pitch/screenshots/
-
-      - name: Stop frontend application
-        run: |
-          kill $(jobs -p)
