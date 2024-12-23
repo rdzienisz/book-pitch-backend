@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout backend code
         uses: actions/checkout@v3
 
       - name: Set up JDK 17
@@ -31,8 +31,43 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Build with Maven
+      - name: Build backend with Maven
         run: cd book-pitch && mvn clean install
 
-      - name: Run tests
-        run: cd book-pitch && mvn test
+      - name: Start backend server
+        run: |
+          cd book-pitch
+          mvn spring-boot:run &
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      - name: Clone frontend repository
+        run: git clone https://github.com/rdzienisz/book-pitch-frontend frontend
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '19'
+
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+
+      - name: Start frontend application
+        run: |
+          cd frontend
+          npm start &
+        env:
+          CI: true
+
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 'latest'
+
+      - name: Create screenshots directory
+        run: mkdir -p book-pitch/screenshots
+
+      - name: Run UI tests
+        run: cd book-pitch && mvn test -Dtest=BookingUITest

@@ -1,6 +1,5 @@
 package com.wsb.book_pitch.selenium;
 
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
@@ -10,21 +9,30 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BookingUITest {
-
+    private static final Logger logger = LoggerFactory.getLogger(BookingUITest.class);
     private static WebDriver driver;
     private static WebDriverWait wait;
+    private static WebDriverWait longWait;
 
     @BeforeAll
     public static void setUp() {
         System.setProperty("webdriver.chrome.driver", "driver/chromedriver");
-        driver = new ChromeDriver();
-        wait = new WebDriverWait(driver, Duration.ofMinutes(2));
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        driver = new ChromeDriver(options);
+        wait = new WebDriverWait(driver, Duration.ofSeconds(4));
+        longWait = new WebDriverWait(driver, Duration.ofSeconds(15));
     }
 
     @Test
@@ -36,11 +44,10 @@ public class BookingUITest {
 
         WebElement emailInput = driver.findElement(By.id("email-input"));
         WebElement dateInput = driver.findElement(By.id("date-input"));
-        WebElement pitchSelect = driver.findElement(By.id("pitch-select"));
+        WebElement pitchSelect = wait.until(ExpectedConditions.elementToBeClickable(By.id("pitch-select")));
         WebElement createBookingButton = driver.findElement(By.id("create-booking-button"));
-
         pitchSelect.click();
-        List<WebElement> options = driver.findElements(By.tagName("li")); // Assuming options are <li> elements
+        List<WebElement> options = driver.findElements(By.tagName("li"));
         for (WebElement option : options) {
             if (option.getText().equals("Pitch 1")) {
                 option.click();
@@ -49,18 +56,21 @@ public class BookingUITest {
         }
 
         emailInput.sendKeys("test@example.com");
-        dateInput.sendKeys("30-12-2024");
+        dateInput.sendKeys("1-01-2024");
         List<WebElement> availableSlots = driver.findElements(By.xpath("//tr[contains(@style, 'lightgreen')]"));
         if (!availableSlots.isEmpty()) {
             availableSlots.get(0).click();
         }
-
+        else {
+            WebElement timeSlot = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//td[text()='20:00']")));
+            timeSlot.click();
+        }
         createBookingButton.click();
-        wait.until(ExpectedConditions.alertIsPresent());
+        longWait.until(ExpectedConditions.alertIsPresent());
         String alertText = driver.switchTo().alert().getText();
         assertTrue(alertText.contains("Booking successful!"));
         driver.switchTo().alert().accept();
-    }
+      }
 
     @AfterAll
     public static void tearDown() {
