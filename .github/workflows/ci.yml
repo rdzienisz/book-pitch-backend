@@ -32,7 +32,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Run Checkstyle
-        run: mvn checkstyle:check
+        run: cd book-pitch && mvn checkstyle:check
 
       - name: Build backend with Maven
         run: cd book-pitch && mvn clean install
