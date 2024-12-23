@@ -63,7 +63,7 @@ public class BookingUITest {
         emailInput.sendKeys("test@example.com");
         File screenshot4 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot4, new File("screenshots/pitchSelectmail.png"));
-        dateInput.sendKeys("30-12-2024");
+        dateInput.sendKeys("1-01-2024");
         File screenshot3 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot3, new File("screenshots/pitchSelectdate.png"));
         List<WebElement> availableSlots = driver.findElements(By.xpath("//tr[contains(@style, 'lightgreen')]"));
