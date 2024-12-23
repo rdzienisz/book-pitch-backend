@@ -1,16 +1,11 @@
 package com.wsb.book_pitch.selenium;
 
-import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -41,7 +36,7 @@ public class BookingUITest {
     }
 
     @Test
-    void testCreateBooking() throws IOException {
+    void testCreateBooking() {
         driver.get("http://localhost:3000");
 
         WebElement bookNavLink = driver.findElement(By.id("book-button"));
@@ -61,26 +56,16 @@ public class BookingUITest {
         }
 
         emailInput.sendKeys("test@example.com");
-        File screenshot4 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot4, new File("screenshots/pitchSelectmail.png"));
         dateInput.sendKeys("1-01-2024");
-        File screenshot3 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot3, new File("screenshots/pitchSelectdate.png"));
         List<WebElement> availableSlots = driver.findElements(By.xpath("//tr[contains(@style, 'lightgreen')]"));
         if (!availableSlots.isEmpty()) {
             availableSlots.get(0).click();
-            logger.info("CLICKED");
         }
         else {
-            logger.info("NOT CLICKED");
             WebElement timeSlot = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//td[text()='20:00']")));
             timeSlot.click();
         }
         createBookingButton.click();
-        File screenshot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
-        File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
-        FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
         longWait.until(ExpectedConditions.alertIsPresent());
         String alertText = driver.switchTo().alert().getText();
         assertTrue(alertText.contains("Booking successful!"));
