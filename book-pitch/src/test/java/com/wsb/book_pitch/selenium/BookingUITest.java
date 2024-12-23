@@ -41,7 +41,7 @@ public class BookingUITest {
     }
 
     @Test
-    void testCreateBooking() throws IOException {
+    void testCreateBooking() throws IOException, InterruptedException {
         driver.get("http://localhost:3000");
 
         WebElement bookNavLink = driver.findElement(By.id("book-button"));
@@ -84,6 +84,7 @@ public class BookingUITest {
         FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
         File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
+        Thread.sleep(4000);
         WebElement createBookingButtonChanged = driver.findElement(By.id("create-booking-button"));
         String buttonColor = createBookingButtonChanged.getCssValue("background-color");
         System.out.println("Button color: " + buttonColor);
