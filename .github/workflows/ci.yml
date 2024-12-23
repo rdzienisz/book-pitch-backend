@@ -66,8 +66,5 @@ jobs:
         with:
           chrome-version: 'latest'
 
-      - name: Create screenshots directory
-        run: mkdir -p book-pitch/screenshots
-
       - name: Run UI tests
         run: cd book-pitch && mvn test -Dtest=BookingUITest
