@@ -84,8 +84,11 @@ public class BookingUITest {
         FileUtils.copyFile(screenshot, new File("screenshots/pitchSelectError.png"));
         File screenshot1 = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
         FileUtils.copyFile(screenshot1, new File("screenshots/pitchSelectError1.png"));
-        WebElement successMessage = longWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("success-message")));
-        assertTrue(successMessage.getText().contains("Booking successful!"));
+        WebElement createBookingButtonChanged = driver.findElement(By.id("create-booking-button"));
+        String buttonColor = createBookingButtonChanged.getCssValue("background-color");
+        System.out.println("Button color: " + buttonColor);
+        assertTrue(buttonColor.equals("rgba(0, 128, 0, 1)") || buttonColor.equals("rgb(0, 128, 0)"), "Button color did not change to green.");
+
     }
 
     @AfterAll
