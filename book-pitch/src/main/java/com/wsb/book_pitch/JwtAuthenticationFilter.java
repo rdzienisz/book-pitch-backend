@@ -19,7 +19,8 @@ import java.util.Collections;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final Integer AUTHORIZATION_HEADER_INDEX = 7;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -37,25 +38,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
 
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-            logger.debug("Extracted token: {}", token);
+            String token = header.substring(AUTHORIZATION_HEADER_INDEX);
+            LOG.debug("Extracted token: {}", token);
             try {
                 Claims claims = JwtUtil.extractClaims(token);
-                logger.debug("Extracted claims: {}", claims);
+                LOG.debug("Extracted claims: {}", claims);
                 if (claims != null && !JwtUtil.isTokenExpired(token)) {
-                    logger.info("Token is valid, setting authentication context for user: {}", claims.getSubject());
+                    LOG.info("Token is valid, setting authentication context for user: {}", claims.getSubject());
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             claims.getSubject(), null, Collections.emptyList());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } else {
-                    logger.warn("Token is expired or invalid");
+                    LOG.warn("Token is expired or invalid");
                 }
             } catch (Exception e) {
-                logger.error("JWT token processing failed", e);
+                LOG.error("JWT token processing failed", e);
             }
         } else {
-            logger.warn("Authorization header is missing or does not start with Bearer");
+            LOG.warn("Authorization header is missing or does not start with Bearer");
         }
 
 

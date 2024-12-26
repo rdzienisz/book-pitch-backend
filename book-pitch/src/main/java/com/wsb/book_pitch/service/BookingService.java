@@ -37,7 +37,8 @@ public class BookingService {
         return pitchRepository.findAll();
     }
 
-    public Booking createBooking(Long pitchId, String email, LocalDateTime startTime, int durationHours)
+    public Booking createBooking(Long pitchId, String email, LocalDateTime startTime,
+            int durationHours)
             throws IOException {
         Pitch pitch = pitchRepository.findById(pitchId).orElseThrow(() ->
                 new PitchNotFoundException("Pitch not found for id: " + pitchId));
@@ -46,7 +47,8 @@ public class BookingService {
         validateBookingTimes(startTime.toLocalTime(), endTime.toLocalTime());
 
         if (!isPitchAvailable(pitchId, startTime, endTime)) {
-            throw new BookingConflictException("The selected time slot is already booked. Please choose a different time.");
+            throw new BookingConflictException(
+                    "The selected time slot is already booked. Please choose a different time.");
         }
 
         Booking booking = new Booking();
@@ -72,7 +74,8 @@ public class BookingService {
     private boolean isPitchAvailable(Long pitchId, LocalDateTime startTime, LocalDateTime endTime) {
         List<Booking> bookings = bookingRepository.findByPitchId(pitchId);
         for (Booking booking : bookings) {
-            if (booking.isActive() && booking.getEndTime().isAfter(startTime) && booking.getStartTime().isBefore(endTime)) {
+            if (booking.isActive() && booking.getEndTime().isAfter(startTime)
+                    && booking.getStartTime().isBefore(endTime)) {
                 return false;
             }
         }

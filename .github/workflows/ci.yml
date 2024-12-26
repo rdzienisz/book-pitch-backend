@@ -31,6 +31,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Run Checkstyle
+        run: cd book-pitch && mvn checkstyle:check
+
       - name: Build backend with Maven
         run: cd book-pitch && mvn clean install
 

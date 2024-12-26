@@ -7,20 +7,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
 
-    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AdminController.class);
 
     @Autowired
     private BookingService bookingService;
 
     @GetMapping("/bookings")
     public ResponseEntity<List<Booking>> getAllBookings() {
-        logger.info("Received request for all bookings");
+        LOG.info("Received request for all bookings");
         List<Booking> bookings = bookingService.getAllBookings();
         return ResponseEntity.ok(bookings);
     }
@@ -28,11 +32,11 @@ public class AdminController {
     @DeleteMapping("/booking/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
         try {
-            logger.info("Received request to delete booking with id: {}", id);
+            LOG.info("Received request to delete booking with id: {}", id);
             bookingService.cancelBooking(id);
             return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            logger.error("Error deleting booking with id: {}", id, e);
+            LOG.error("Error deleting booking with id: {}", id, e);
             return ResponseEntity.notFound().build();
         }
     }
