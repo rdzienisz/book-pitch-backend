@@ -71,13 +71,16 @@ public class BookingServiceTest {
         booking.setStartTime(startTime);
         booking.setEndTime(startTime.plusHours(durationHours));
         booking.setIsActive(true);
+        booking.setId(4123L);
 
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
 
         Booking result = bookingService.createBooking(pitchId, email, startTime, durationHours);
 
         assertEquals(booking, result);
-        verify(emailService, times(1)).sendEmail(email, "Booking Confirmation", "Your booking is confirmed.");
+        verify(emailService, times(1)).sendEmail(email, "Booking Confirmation",
+                "Your booking for pitch 1 is confirmed for 09:00, 2023-10-10.\n"
+                        + "If you want to cancel the booking enter this link: http://localhost:8080/api/user/4123/1.");
     }
 
     @Test
@@ -95,7 +98,8 @@ public class BookingServiceTest {
         existingBooking.setEndTime(startTime.plusHours(1));
         existingBooking.setIsActive(true);
 
-        when(bookingRepository.findByPitchId(pitchId)).thenReturn(Collections.singletonList(existingBooking));
+        when(bookingRepository.findByPitchId(pitchId)).thenReturn(
+                Collections.singletonList(existingBooking));
 
         assertThrows(BookingConflictException.class, () -> {
             bookingService.createBooking(pitchId, email, startTime, durationHours);
