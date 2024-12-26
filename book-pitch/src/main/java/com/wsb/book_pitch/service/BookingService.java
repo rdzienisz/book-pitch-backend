@@ -9,6 +9,7 @@ import com.wsb.book_pitch.repository.BookingRepository;
 import com.wsb.book_pitch.repository.PitchRepository;
 import com.wsb.book_pitch.util.TimeSlot;
 import java.io.IOException;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,8 +58,14 @@ public class BookingService {
         booking.setStartTime(startTime);
         booking.setEndTime(endTime);
         booking.setIsActive(true);
-        emailService.sendEmail(email, "Booking Confirmation", "Your booking is confirmed.");
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+        String emailBody = String.format(
+                "Your booking for pitch %s is confirmed for %s, %s.%n"
+                        + "If you want to cancel the booking enter this link: http://localhost:8080/api/user/%s/%s.",
+                pitchId, startTime.toLocalTime().toString(), startTime.toLocalDate().toString(),
+                savedBooking.getId(), pitchId);
+        emailService.sendEmail(email, "Booking Confirmation", emailBody);
+        return savedBooking;
     }
 
     private void validateBookingTimes(LocalTime startTime, LocalTime endTime) {
@@ -100,6 +107,15 @@ public class BookingService {
                 new BookingNotFoundException("Booking not found for id: " + bookingId));
         booking.setIsActive(false);
         bookingRepository.delete(booking);
+    }
+
+    public void cancelBooking(Long bookingId, Long pitchId) {
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
+                new BookingNotFoundException("Booking not found for id: " + bookingId));
+        if (Objects.equals(booking.getId(), pitchId)) {
+            booking.setIsActive(false);
+            bookingRepository.delete(booking);
+        }
     }
 
     public List<Booking> getBookingsByPitch(Long pitchId) {
